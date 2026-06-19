@@ -94,6 +94,10 @@ class CheckoutPersistenceAdapter(
             
         val itemsBaseAmount = items.fold(BigDecimal.ZERO) { acc, i -> acc.add(i.totalPrice) }
         val shippingCost = record.shippingCost ?: BigDecimal.ZERO
+        val total = record.totalAmount!!
+        // 세션 테이블은 tax를 별도 컬럼으로 저장하지 않으므로, 저장된 합계에서 역산한다.
+        // total = subtotal + shipping + tax  →  tax = total - subtotal - shipping
+        val tax = (total.subtract(itemsBaseAmount).subtract(shippingCost)).max(BigDecimal.ZERO)
 
         return@withContext CheckoutSession(
             id = record.id!!,
@@ -107,9 +111,9 @@ class CheckoutPersistenceAdapter(
                  itemsBaseAmount = itemsBaseAmount,
                  itemsDiscount = BigDecimal.ZERO,
                  subtotal = itemsBaseAmount,
-                 tax = BigDecimal.ZERO, // Placeholder - needs proper calculation or persistence
+                 tax = tax,
                  shipping = shippingCost,
-                 total = record.totalAmount!!
+                 total = total
             ),
             nextActionUrl = record.nextActionUrl,
             createdAt = record.createdAt!!.toZonedDateTime(),
