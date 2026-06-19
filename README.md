@@ -207,7 +207,7 @@ acp/
 │   │   ├── domain/        # 순수 도메인 로직
 │   │   └── config/        # Spring 설정
 │   └── src/main/resources/
-│       └── db/migration/  # Flyway SQL
+│       └── db/migration/  # 수동 SQL 스크립트 (Flyway 미사용)
 │
 ├── acp-psp/               # PSP 서버 (Port 8081)
 │   ├── src/main/kotlin/
