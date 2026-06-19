@@ -126,7 +126,7 @@
 - [x] **POST /checkout_sessions** (세션 생성)
   - [x] 요청 검증 (items, buyer, fulfillment_address)
   - [x] 재고 확인(상품 존재) 및 가격 계산
-  - [x] 세금 계산 (VAT 10%, PricingEngine) — 단, GET 재조회(findById)는 tax=0 복원 버그 있음
+  - [x] 세금 계산 (VAT 10%, PricingEngine) — GET 재조회 시에도 합계 역산으로 일관 복원
   - [x] 배송비 계산 (fulfillment_options)
   - [x] 세션 ID 생성 및 DB 저장
   - [x] 응답: `CheckoutSessionResponse` (status: not_ready_for_payment)
