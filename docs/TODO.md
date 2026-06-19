@@ -671,8 +671,8 @@ FAILED   FAILED      CANCELED
 
 ### 8.1 CI (Continuous Integration)
 
-- [ ] **GitHub Actions 워크플로우**
-  - [ ] PR 생성 시 자동 빌드 및 테스트
+- [x] **GitHub Actions 워크플로우** (`.github/workflows/ci.yml`)
+  - [x] push/PR 시 자동 빌드 및 테스트 (docker compose로 스키마 자동 생성 후 `gradlew build`)
   - [ ] 코드 커버리지 리포트 (Codecov)
   - [ ] 정적 분석 (Detekt, ktlint)
 
