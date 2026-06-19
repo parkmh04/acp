@@ -1,13 +1,17 @@
 package com.acp.psp.infrastructure.config
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import io.netty.channel.ChannelOption
+import java.time.Duration
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
+import org.springframework.http.client.reactive.ReactorClientHttpConnector
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClientResponseException
+import reactor.netty.http.client.HttpClient
 
 private val logger = KotlinLogging.logger {}
 
@@ -28,8 +32,14 @@ class KakaoPayConfig(
     fun kakaoPayWebClient(): WebClient {
         logger.info { "Initializing KakaoPay WebClient with baseUrl: $baseUrl" }
 
+        val timeoutHttpClient =
+                HttpClient.create()
+                        .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 3000)
+                        .responseTimeout(Duration.ofSeconds(10))
+
         return WebClient.builder()
                 .baseUrl(baseUrl)
+                .clientConnector(ReactorClientHttpConnector(timeoutHttpClient))
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .defaultHeader(HttpHeaders.AUTHORIZATION, "SECRET_KEY $secretKey")
                 .filter { request, next ->

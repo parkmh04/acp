@@ -1,6 +1,7 @@
 package com.acp.merchant.adapter.outbound.web
 
 import com.acp.merchant.application.port.output.PaymentClient
+import com.acp.merchant.config.timeoutConnector
 import com.acp.schema.payment.PaymentPrepareRequest
 import com.acp.schema.payment.PaymentPrepareResponse
 import com.acp.schema.payment.PaymentApproveRequest
@@ -17,7 +18,7 @@ class PaymentClientAdapter(
 ) : PaymentClient {
 
     private val webClient: WebClient by lazy {
-        webClientBuilder.baseUrl(pspUrl).build()
+        webClientBuilder.baseUrl(pspUrl).clientConnector(timeoutConnector()).build()
     }
 
     override suspend fun preparePayment(request: PaymentPrepareRequest): PaymentPrepareResponse {
