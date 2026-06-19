@@ -50,7 +50,7 @@
   - 환경 변수 설정 (.env 파일)
   
 - [ ] **Day 3-4**: DB 스키마 구현
-  - Flyway 마이그레이션 파일 작성
+  - 수동 SQL 마이그레이션 스크립트 작성 (`db/migration/`, Flyway 미사용으로 결정)
   - `products`, `orders`, `payments` 테이블 생성
   - Mock 데이터 삽입 (상품 100개)
   
@@ -316,7 +316,7 @@
 - [ ] Git 설정 (사용자명, 이메일)
 - [ ] `.env` 파일 생성 및 카카오페이 API 키 설정
 - [ ] Docker Compose 실행: `docker-compose -f docker/docker-compose.yml up -d`
-- [ ] DB 초기화 확인: `psql -h localhost -U postgres -d acp`
+- [ ] DB 초기화 확인: `psql -h localhost -U user -d acp` (PW: password)
 - [ ] Gradle 빌드 테스트: `./gradlew clean build`
 
 ---

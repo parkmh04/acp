@@ -234,7 +234,7 @@ sequenceDiagram
     Merchant->>DB_M: INSERT INTO orders<br/>(status: PENDING, total: 100900)
     DB_M-->>Merchant: order_id = "ord_xyz"
     
-    Merchant->>PSP: POST /payments/prepare<br/>{provider: "kakaopay", amount: 100900}
+    Merchant->>PSP: POST /api/v1/payments/prepare<br/>{provider: "kakaopay", amount: 100900}
     PSP->>PSP: PaymentProviderFactory.get("kakaopay")
     PSP->>KPay: POST /online/v1/payment/ready<br/>{cid: "TC0ONETIME", total_amount: 100900}
     KPay-->>PSP: {tid: "T123456", next_redirect_pc_url: "https://..."}
@@ -250,16 +250,18 @@ sequenceDiagram
     User->>KPay: 결제 URL 접속
     KPay->>User: 카카오페이 로그인 및 결제 수단 선택
     User->>KPay: 결제 승인
-    KPay->>PSP: GET /payments/callback/success?pg_token=abc123
+    KPay->>Merchant: 리다이렉트 GET /api/v1/payments/success<br/>?session_id=cs_abc&pg_token=abc123
     
-    Note over User,DB_P: Phase 6: 결제 최종 승인 (PSP → KakaoPay)
-    PSP->>DB_P: SELECT tid FROM payments WHERE id = 'pay_001'
+    Note over User,DB_P: Phase 6: 결제 최종 승인 (Merchant → PSP → KakaoPay)
+    Merchant->>PSP: POST /api/v1/payments/approve<br/>{merchantOrderId, pgToken: "abc123"}
+    PSP->>DB_P: SELECT tid FROM payments<br/>(merchant_order_id, type=PREPARE)
     DB_P-->>PSP: tid = "T123456"
     PSP->>KPay: POST /online/v1/payment/approve<br/>{tid: "T123456", pg_token: "abc123"}
-    KPay-->>PSP: {aid: "A987654", approved_at: "2025-12-29T09:15:00"}
-    PSP->>DB_P: UPDATE payments SET status = COMPLETED, aid = 'A987654'
+    KPay-->>PSP: {aid: "A987654", approved_at: "..."}
+    PSP->>DB_P: INSERT INTO payments<br/>(type=APPROVE, status=SUCCESS)
     DB_P-->>PSP: OK
-    PSP-->>User: "결제가 완료되었습니다!" (HTML 페이지)
+    PSP-->>Merchant: PaymentApproveResponse
+    Merchant-->>User: 결제 완료 페이지 (/api/v1/payments/completed)
 
     Note over User,DB_P: Phase 7: 주문 동기화 (PSP → Merchant Webhook)
     PSP->>Merchant: POST /webhooks/payment<br/>{event: "payment.completed", paymentId: "pay_001"}
@@ -277,6 +279,11 @@ sequenceDiagram
     Merchant->>Agent: POST {webhook_url}<br/>{event: "order.created", orderId: "ord_xyz"}
     Agent-->>User: "주문이 완료되었습니다! 주문번호: ord_xyz"
 ```
+
+> **구현 현황 참고**
+> - 결제 리다이렉트 콜백은 **Merchant**(`PaymentCallbackController`)가 수신하며, Merchant가 PSP `/approve`를 호출합니다.
+> - `psp.payments`는 **불변 장부**로, 상태 변경 시 UPDATE가 아니라 `type`(PREPARE/APPROVE/CANCEL) 행을 **INSERT**합니다.
+> - **Phase 7(PSP→Merchant Webhook)**, **Phase 8(Cafe24 주문 동기화 / Agent 알림)**, 그리고 자체 `pg_tid SELECT 단건조회` 흐름은 **현재 미구현(예정)**입니다.
 
 ---
 
@@ -612,7 +619,7 @@ Agent Request (trace_id: abc123)
   └─> Merchant: GET /feed (span_id: 001)
       └─> DB Query (span_id: 002)
   └─> Merchant: POST /checkout_sessions (span_id: 003)
-      └─> PSP: POST /payments/prepare (span_id: 004)
+      └─> PSP: POST /api/v1/payments/prepare (span_id: 004)
           └─> KakaoPay: POST /ready (span_id: 005)
 ```
 
