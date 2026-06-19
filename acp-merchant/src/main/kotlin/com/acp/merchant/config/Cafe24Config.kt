@@ -2,16 +2,29 @@ package com.acp.merchant.config
 
 import com.acp.merchant.infrastructure.cafe24.Cafe24TokenManager
 import io.github.oshai.kotlinlogging.KotlinLogging
+import io.netty.channel.ChannelOption
+import java.time.Duration
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
+import org.springframework.http.client.reactive.ReactorClientHttpConnector
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import reactor.core.publisher.Mono
+import reactor.netty.http.client.HttpClient
 
 private val logger = KotlinLogging.logger {}
+
+/** 외부 호출 무한 대기 방지용 타임아웃 커넥터 (connect 3s / response 10s) */
+internal fun timeoutConnector(connectMs: Int = 3000, responseSec: Long = 10): ReactorClientHttpConnector {
+    val httpClient =
+            HttpClient.create()
+                    .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, connectMs)
+                    .responseTimeout(Duration.ofSeconds(responseSec))
+    return ReactorClientHttpConnector(httpClient)
+}
 
 /**
  * Cafe24 API 설정
@@ -45,6 +58,7 @@ class Cafe24Config(
 
         return WebClient.builder()
             .baseUrl(baseUrl)
+            .clientConnector(timeoutConnector())
             .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .filter { request, next ->
                 // 매 요청마다 최신 토큰 조회
