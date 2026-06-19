@@ -253,9 +253,13 @@ CREATE TABLE psp.payments (
 CREATE INDEX idx_payments_merchant_order_id ON psp.payments(merchant_order_id);
 CREATE INDEX idx_payments_pg_tid            ON psp.payments(pg_tid);
 CREATE INDEX idx_payments_created_at        ON psp.payments(created_at);
+
+-- 결제 준비(PREPARE) 멱등성: 주문번호당 PREPARE 1건만 허용 (add_payment_idempotency_index.sql)
+CREATE UNIQUE INDEX uq_payments_prepare_per_order
+    ON psp.payments (merchant_order_id) WHERE type = 'PREPARE';
 ```
 
-> **멱등성**: 별도의 `idempotency_keys` 테이블 없이, `PaymentService`가 `merchant_order_id` + `type` 조합으로 기존 트랜잭션을 조회하여 중복을 방지합니다.
+> **멱등성**: 별도의 `idempotency_keys` 테이블 없이, `PaymentService`가 `merchant_order_id` + `type` 조합으로 기존 트랜잭션을 조회하여 중복을 방지합니다. 추가로 동시 요청 레이스(check-then-insert)에 대비해 PREPARE에 부분 unique 인덱스(`uq_payments_prepare_per_order`)를 두어 DB 레벨에서도 중복 PREPARE를 차단합니다.
 
 ---
 

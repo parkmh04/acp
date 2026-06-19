@@ -60,7 +60,27 @@ class PaymentService(
                     createdAt = OffsetDateTime.now()
                 )
 
-                paymentRepositoryPort.save(payment)
+                try {
+                        paymentRepositoryPort.save(payment)
+                } catch (e: Exception) {
+                        // 동시 요청 레이스: merchant_order_id 당 PREPARE 1건만 허용하는
+                        // 부분 unique 제약(uq_payments_prepare_per_order) 위반 가능.
+                        // 이미 생성된 PREPARE 가 있으면 그 결과를 멱등 반환한다.
+                        val winner =
+                                paymentRepositoryPort.findLastByMerchantOrderIdAndType(
+                                        request.merchantOrderId, "PREPARE")
+                                        ?: throw e
+                        logger.warn {
+                                "Concurrent PREPARE detected for ${request.merchantOrderId}, returning existing ${winner.id}"
+                        }
+                        val winnerTid = winner.pgTid?.let { encryptionPort.decrypt(it) }
+                        return PaymentPrepareResponse(
+                                paymentId = winner.id!!,
+                                merchantOrderId = winner.merchantOrderId!!,
+                                redirectUrl = "https://mock-kakaopay.com/pay/$winnerTid",
+                                status = winner.status!!
+                        )
+                }
 
                 // 4. 최종 응답 반환
                 return PaymentPrepareResponse(
