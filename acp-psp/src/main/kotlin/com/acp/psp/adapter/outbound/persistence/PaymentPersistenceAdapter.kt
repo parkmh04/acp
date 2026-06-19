@@ -12,15 +12,6 @@ import org.springframework.stereotype.Repository
 @Repository
 class PaymentPersistenceAdapter(private val dsl: DSLContext) : PaymentRepositoryPort {
 
-    override suspend fun findByMerchantOrderId(merchantOrderId: String): Payments? =
-            withContext(Dispatchers.IO) {
-                dsl.selectFrom(PAYMENTS)
-                        .where(PAYMENTS.MERCHANT_ORDER_ID.eq(merchantOrderId))
-                        .orderBy(PAYMENTS.CREATED_AT.desc())
-                        .limit(1)
-                        .fetchOneInto(Payments::class.java)
-            }
-
     override suspend fun findLastByMerchantOrderIdAndType(merchantOrderId: String, type: String): Payments? =
             withContext(Dispatchers.IO) {
                 dsl.selectFrom(PAYMENTS)

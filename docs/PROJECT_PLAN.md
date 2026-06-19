@@ -477,7 +477,7 @@ Closes #12
 
 ### 프로젝트 관리
 
-- **GitHub Repository**: `https://github.com/your-org/acp`
+- **GitHub Repository**: `https://github.com/parkmh04/acp`
 - **Slack Channel**: `#acp-project`
 - **이슈 트래커**: GitHub Issues
 
