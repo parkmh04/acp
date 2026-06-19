@@ -255,24 +255,29 @@ acp/
 
 ---
 
-## 📈 모니터링 (예정)
+## 📈 모니터링
 
-> **현재 상태**: 관측성 스택은 아직 구성되지 않았습니다. `docker-compose.yml`에는 PostgreSQL과 Redis만 포함되며, Spring Boot Actuator/Micrometer 의존성도 추가 전입니다. 아래는 향후 구성 시 사용할 명령입니다.
+Spring Boot Actuator + Micrometer가 두 서버에 적용되어 있습니다. (노출: `health`, `info`, `prometheus`)
 
-### Prometheus (예정)
+### 헬스 체크
 
 ```bash
-# Actuator/Micrometer 의존성 추가 후 사용 가능
+curl http://localhost:8080/actuator/health   # Merchant
+curl http://localhost:8081/actuator/health   # PSP
+# liveness/readiness 프로브: /actuator/health/{liveness,readiness}
+```
+
+### Prometheus 메트릭
+
+```bash
 curl http://localhost:8080/actuator/prometheus  # Merchant
 curl http://localhost:8081/actuator/prometheus  # PSP
 ```
 
 ### Grafana 대시보드 (예정)
 
-```bash
-# Prometheus/Grafana를 docker-compose에 추가한 뒤 접속
-open http://localhost:3000  # ID: admin, PW: admin
-```
+> Prometheus/Grafana 컨테이너는 아직 `docker-compose.yml`에 포함되지 않았습니다.
+> 추가 후 `http://localhost:3000`(admin/admin)에서 위 `/actuator/prometheus`를 스크랩하여 사용합니다.
 
 ---
 

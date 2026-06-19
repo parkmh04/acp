@@ -18,6 +18,16 @@ spring:
       fail-on-unknown-properties: false
       READ_ENUMS_USING_TO_STRING: true
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    health:
+      probes:
+        enabled: true   # liveness/readiness 프로브
+
 psp:
   base-url: http://localhost:8081
 
