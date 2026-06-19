@@ -20,7 +20,9 @@ private val logger = KotlinLogging.logger {}
 @Component
 class KakaoPayProvider(
         private val kakaoPayWebClient: WebClient,
-        @Value("\${kakaopay.cid:TC0ONETIME}") private val cid: String
+        @Value("\${kakaopay.cid:TC0ONETIME}") private val cid: String,
+        // 결제 리다이렉트가 돌아올 Merchant 콜백 베이스 URL. 호스트/포트 변경 시 환경변수로 주입.
+        @Value("\${merchant.callback-base-url:http://localhost:8080}") private val callbackBaseUrl: String
 ) : PaymentProvider {
 
     override val providerName: String = "KAKAOPAY"
@@ -50,9 +52,9 @@ class KakaoPayProvider(
                         quantity = totalQuantity,
                         totalAmount = request.amount.toInt(),
                         taxFreeAmount = 0,
-                        approvalUrl = "http://localhost:8080/api/v1/payments/success?session_id=${request.merchantOrderId}",
-                        cancelUrl = "http://localhost:8080/api/v1/payments/cancel?session_id=${request.merchantOrderId}",
-                        failUrl = "http://localhost:8080/api/v1/payments/fail?session_id=${request.merchantOrderId}"
+                        approvalUrl = "$callbackBaseUrl/api/v1/payments/success?session_id=${request.merchantOrderId}",
+                        cancelUrl = "$callbackBaseUrl/api/v1/payments/cancel?session_id=${request.merchantOrderId}",
+                        failUrl = "$callbackBaseUrl/api/v1/payments/fail?session_id=${request.merchantOrderId}"
                 )
 
         val response =
