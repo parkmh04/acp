@@ -33,10 +33,21 @@ class CheckoutService(
         private val transactionPort: TransactionPort
 ) : CheckoutUseCase {
 
+    private companion object {
+        const val MAX_QUANTITY = 99
+        const val SESSION_TTL_MINUTES = 30L
+        val EMAIL_REGEX = Regex("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$")
+    }
+
     override suspend fun createSession(request: CreateCheckoutSessionRequest): CheckoutSession {
+        // 0. 입력 검증
+        require(request.items.isNotEmpty()) { "items must not be empty" }
+        request.buyer?.email?.let { validateEmail(it) }
+
         // 1. Fetch products and validate
         val checkoutItems =
                 request.items.map { requestItem ->
+                    validateQuantity(requestItem.quantity)
                     val product =
                             productRepository.findById(requestItem.id)
                                     ?: throw IllegalArgumentException(
@@ -90,10 +101,19 @@ class CheckoutService(
                         buyer = request.buyer?.let { Buyer(it.email, it.name) },
                         shippingAddress = address,
                         availableFulfillmentOptions = availableOptions,
-                        totals = totals
+                        totals = totals,
+                        expiresAt = ZonedDateTime.now().plusMinutes(SESSION_TTL_MINUTES)
                 )
 
         return checkoutRepository.save(session)
+    }
+
+    private fun validateQuantity(quantity: Int) {
+        require(quantity in 1..MAX_QUANTITY) { "quantity must be between 1 and $MAX_QUANTITY" }
+    }
+
+    private fun validateEmail(email: String) {
+        require(EMAIL_REGEX.matches(email)) { "invalid email format: $email" }
     }
 
     override suspend fun getSession(id: String): CheckoutSession? {
@@ -132,6 +152,7 @@ class CheckoutService(
         val updatedItems =
                 if (request.items != null) {
                     request.items!!.map { requestItem ->
+                        validateQuantity(requestItem.quantity)
                         val product =
                                 productRepository.findById(requestItem.id)
                                         ?: throw IllegalArgumentException(
