@@ -123,32 +123,35 @@
 ### 2.1 Checkout Session 생명주기 구현
 
 #### 필수 엔드포인트
-- [ ] **POST /checkout_sessions** (세션 생성)
-  - [ ] 요청 검증 (items, buyer, fulfillment_address)
-  - [ ] 재고 확인 및 가격 계산
-  - [ ] 세금 계산 (국가/지역별)
-  - [ ] 배송비 계산 (fulfillment_options)
-  - [ ] 세션 ID 생성 및 DB 저장
-  - [ ] 응답: `CheckoutSessionResponse` (status: not_ready_for_payment)
+- [x] **POST /checkout_sessions** (세션 생성)
+  - [x] 요청 검증 (items, buyer, fulfillment_address)
+  - [x] 재고 확인(상품 존재) 및 가격 계산
+  - [ ] 세금 계산 (국가/지역별) — 현재 tax=0 placeholder, 미구현
+  - [x] 배송비 계산 (fulfillment_options)
+  - [x] 세션 ID 생성 및 DB 저장
+  - [x] 응답: `CheckoutSessionResponse` (status: not_ready_for_payment)
 
-- [ ] **POST /checkout_sessions/{id}** (세션 업데이트)
-  - [ ] 수량 변경, 주소 변경, 할인 코드 적용
-  - [ ] 실시간 가격/세금/배송비 재계산
+- [x] **POST /checkout_sessions/{id}** (세션 업데이트)
+  - [ ] 수량 변경, 주소 변경, 할인 코드 적용 — 수량/주소 O, 할인 미구현
+  - [ ] 실시간 가격/세금/배송비 재계산 — 가격/배송 O, 세금 미구현
   - [ ] 멱등성 보장 (Idempotency-Key 헤더)
-  - [ ] 응답: 업데이트된 `CheckoutSessionResponse`
+  - [x] 응답: 업데이트된 `CheckoutSessionResponse`
 
-- [ ] **POST /checkout_sessions/{id}/complete** (주문 확정)
-  - [ ] PSP 서버에 결제 요청 (`POST /api/v1/payments/prepare`)
-  - [ ] 주문 생성 (orders 테이블)
+- [x] **POST /checkout_sessions/{id}/complete** (주문 확정)
+  - [x] PSP 서버에 결제 요청 (`POST /api/v1/payments/prepare`)
+  - [x] 주문 생성 (orders 테이블) — /confirm 단계에서 생성
   - [ ] 재고 차감 (트랜잭션)
-  - [ ] 응답: `next_action_url` (카카오페이 리다이렉트 URL)
+  - [x] 응답: `next_action_url` (카카오페이 리다이렉트 URL)
 
-- [ ] **POST /checkout_sessions/{id}/cancel** (세션 취소)
-  - [ ] 세션 상태를 CANCELED로 변경
+- [x] **POST /checkout_sessions/{id}/cancel** (세션 취소)
+  - [x] 세션 상태를 CANCELED로 변경
   - [ ] 재고 복구 (필요 시)
 
-- [ ] **GET /checkout_sessions/{id}** (세션 조회)
-  - [ ] 현재 세션 상태 반환
+- [x] **POST /checkout_sessions/{id}/confirm** (결제 승인·주문 확정)
+  - [x] pg_token으로 PSP 승인 호출 및 주문 생성
+
+- [x] **GET /checkout_sessions/{id}** (세션 조회)
+  - [x] 현재 세션 상태 반환
   - [ ] 캐싱 (Redis, TTL 1분)
 
 ### 2.2 주문 상태 관리
@@ -161,10 +164,10 @@ CANCELED    FAILED
 ```
 
 - [ ] **상태 전이 로직 구현**
-  - [ ] `PENDING`: 체크아웃 세션 생성 시
-  - [ ] `AUTHORIZED`: PSP에서 결제 승인 완료 시
-  - [ ] `COMPLETED`: 상품 발송 완료 시
-  - [ ] `CANCELED`: 사용자 취소 또는 타임아웃
+  - [x] `PENDING`: 체크아웃 세션 생성 시
+  - [x] `AUTHORIZED`: PSP에서 결제 승인 완료 시
+  - [ ] `COMPLETED`: 상품 발송 완료 시 (발송 로직 없음)
+  - [x] `CANCELED`: 사용자 취소
   - [ ] `FAILED`: 결제 실패 또는 재고 부족
 
 - [ ] **상태 전이 검증**
@@ -174,19 +177,19 @@ CANCELED    FAILED
 ### 2.3 가격 계산 엔진
 
 - [ ] **Line Item 계산**
-  - [ ] `base_amount = unit_price × quantity`
-  - [ ] `discount` 적용 (할인 코드, 프로모션)
-  - [ ] `subtotal = base_amount - discount`
-  - [ ] `tax` 계산 (국가/지역별 세율)
-  - [ ] `total = subtotal + tax`
+  - [x] `base_amount = unit_price × quantity`
+  - [ ] `discount` 적용 (할인 코드, 프로모션) — 미구현
+  - [x] `subtotal = base_amount - discount`
+  - [ ] `tax` 계산 (국가/지역별 세율) — 미구현(0 고정)
+  - [x] `total = subtotal + tax`
 
 - [ ] **Totals 계산**
-  - [ ] `items_base_amount`: 모든 상품 기본 금액 합계
-  - [ ] `items_discount`: 상품 할인 합계
-  - [ ] `subtotal`: 상품 소계
-  - [ ] `fulfillment`: 배송비
-  - [ ] `tax`: 세금
-  - [ ] `total`: 최종 결제 금액
+  - [x] `items_base_amount`: 모든 상품 기본 금액 합계
+  - [ ] `items_discount`: 상품 할인 합계 — 미구현
+  - [x] `subtotal`: 상품 소계
+  - [x] `fulfillment`: 배송비
+  - [ ] `tax`: 세금 — 미구현(0 고정)
+  - [x] `total`: 최종 결제 금액
 
 - [ ] **세금 계산 로직**
   - [ ] 한국: VAT 10%
@@ -195,10 +198,10 @@ CANCELED    FAILED
 
 ### 2.4 Fulfillment Options (배송 옵션)
 
-- [ ] **배송 방법 정의**
-  - [ ] 일반 배송 (3-5일, 무료 또는 3,000원)
-  - [ ] 빠른 배송 (1-2일, 5,000원)
-  - [ ] 당일 배송 (지역 제한, 10,000원)
+- [x] **배송 방법 정의** (FulfillmentOption.standard/express/sameDay)
+  - [x] 일반 배송 (3-5일, 무료 또는 3,000원)
+  - [x] 빠른 배송 (1-2일, 5,000원)
+  - [x] 당일 배송 (지역 제한, 10,000원)
 
 - [x] **배송비 계산**
   - [x] 주소 기반 배송 가능 여부 확인
@@ -208,18 +211,18 @@ CANCELED    FAILED
 ### 2.5 PSP 연동
 
 - [ ] **WebClient 구성**
-  - [ ] PSP 서버 URL 설정 (`http://localhost:8081`)
+  - [x] PSP 서버 URL 설정 (`http://localhost:8081`)
   - [ ] Timeout 설정 (Connect: 3s, Read: 10s)
   - [ ] Retry 정책 (최대 3회, Exponential Backoff)
   - [ ] Circuit Breaker (Resilience4j)
 
-- [ ] **결제 준비 요청**
-  - [ ] `POST /api/v1/payments/prepare` 호출
-  - [ ] 요청: `PaymentPrepareRequest` (merchantOrderId, amount, items)
-  - [ ] 응답: `PaymentPrepareResponse` (paymentId, redirectUrl)
+- [x] **결제 준비 요청**
+  - [x] `POST /api/v1/payments/prepare` 호출
+  - [x] 요청: `PaymentPrepareRequest` (merchantOrderId, amount, items)
+  - [x] 응답: `PaymentPrepareResponse` (paymentId, redirectUrl)
 
 - [ ] **결제 상태 조회**
-  - [ ] `GET /api/v1/payments/{id}` 호출
+  - [ ] `GET /api/v1/payments/{id}` 호출 — 미구현
   - [ ] 주기적 폴링 (결제 완료 확인)
 
 ### 2.6 보안 및 검증
@@ -229,7 +232,7 @@ CANCELED    FAILED
   - [ ] 요청 서명 검증 (HMAC-SHA256)
 
 - [ ] **입력 검증**
-  - [ ] 상품 ID 존재 여부 확인
+  - [x] 상품 ID 존재 여부 확인
   - [ ] 수량 범위 검증 (1-99)
   - [x] 주소 형식 검증 (우편번호, 국가 코드)
   - [ ] 이메일 형식 검증
@@ -245,7 +248,7 @@ CANCELED    FAILED
 
 ### 2.7 에러 처리
 
-- [ ] **표준 에러 응답 (RFC 7807)**
+- [x] **표준 에러 응답 (RFC 7807)** — GlobalExceptionHandler(ProblemDetail) 적용
   ```json
   {
     "type": "https://merchant.example.com/errors/out-of-stock",
@@ -290,43 +293,42 @@ CANCELED    FAILED
     - [x] `item_name` (다중 상품 처리 포함)
     - [x] `quantity`, `total_amount`, `tax_free_amount`
     - [x] `approval_url`, `cancel_url`, `fail_url`
-  - [ ] 응답 처리:
+  - [x] 응답 처리:
     - `tid`: 카카오페이 트랜잭션 ID
     - `next_redirect_pc_url`: PC 웹 결제 URL
     - `next_redirect_mobile_url`: 모바일 웹 결제 URL
     - `next_redirect_app_url`: 앱 결제 URL
-  - [ ] DB 저장: `payments` 테이블 (status: READY)
+  - [x] DB 저장: `payments` 테이블 (type: PREPARE)
 
-- [ ] **결제 승인 (Approve)**
-  - [ ] 엔드포인트: `POST /online/v1/payment/approve`
-  - [ ] 요청 파라미터:
+- [x] **결제 승인 (Approve)**
+  - [x] 엔드포인트: `POST /online/v1/payment/approve`
+  - [x] 요청 파라미터:
     - `cid`: 가맹점 코드
     - `tid`: 카카오페이 트랜잭션 ID
     - `partner_order_id`: Merchant 주문 ID
     - `partner_user_id`: 사용자 ID
     - `pg_token`: 결제 승인 토큰 (리다이렉트 쿼리 파라미터)
-  - [ ] 응답 처리:
+  - [x] 응답 처리:
     - `aid`: 결제 승인 ID
     - `approved_at`: 승인 시각
     - `amount`: 결제 금액 정보
     - `card_info`: 카드 정보 (마스킹)
-  - [ ] DB 업데이트: `payments` 테이블 (status: COMPLETED)
+  - [x] DB 저장: `payments` 테이블 (type: APPROVE, status: SUCCESS)
 
 - [ ] **결제 조회 (Order)**
-  - [ ] 엔드포인트: `POST /online/v1/payment/order`
-  - [ ] 요청 파라미터:
-    - `cid`, `tid`
-  - [ ] 응답: 결제 상세 정보
-  - [ ] 용도: 주기적 상태 동기화
+  - [x] 엔드포인트: `POST /online/v1/payment/order` — KakaoPayProvider.checkStatus (망취소 시 사용)
+  - [x] 요청 파라미터: `cid`, `tid`
+  - [x] 응답: 결제 상세 정보
+  - [ ] 용도: 주기적 상태 동기화 (스케줄러 미구현)
 
-- [ ] **결제 취소 (Cancel)**
-  - [ ] 엔드포인트: `POST /online/v1/payment/cancel`
-  - [ ] 요청 파라미터:
+- [x] **결제 취소 (Cancel)**
+  - [x] 엔드포인트: `POST /online/v1/payment/cancel`
+  - [x] 요청 파라미터:
     - `cid`, `tid`
     - `cancel_amount`: 취소 금액
     - `cancel_tax_free_amount`: 취소 비과세 금액
-  - [ ] 부분 취소 지원
-  - [ ] DB 업데이트: `payments` 테이블 (status: CANCELED)
+  - [x] 부분 취소 지원 (cancel_amount)
+  - [x] DB 저장: `payments` 테이블 (type: CANCEL)
 
 ### 3.2 결제 상태 머신
 
@@ -336,12 +338,12 @@ READY → IN_PROGRESS → COMPLETED
 FAILED   FAILED      CANCELED
 ```
 
-- [ ] **상태 전이 구현**
-  - [ ] `READY`: 결제 준비 완료 (tid 발급)
-  - [ ] `IN_PROGRESS`: 사용자가 결제 URL 접속
-  - [ ] `COMPLETED`: 결제 승인 완료
-  - [ ] `FAILED`: 결제 실패 (카드 한도 초과, 네트워크 오류 등)
-  - [ ] `CANCELED`: 사용자 취소 또는 환불
+- [ ] **상태 전이 구현** (불변 장부 type/status 기반)
+  - [x] `READY`: 결제 준비 완료 (PREPARE/READY)
+  - [ ] `IN_PROGRESS`: 사용자가 결제 URL 접속 (별도 추적 안 함)
+  - [x] `COMPLETED`: 결제 승인 완료 (APPROVE/SUCCESS)
+  - [x] `FAILED`: 결제 실패 (APPROVE/FAIL)
+  - [x] `CANCELED`: 사용자 취소 또는 환불 (CANCEL)
 
 - [ ] **타임아웃 처리**
   - [ ] 결제 준비 후 15분 이내 미승인 시 자동 만료
@@ -366,19 +368,19 @@ FAILED   FAILED      CANCELED
 
 ### 3.4 멱등성 및 동시성 제어
 
-- [ ] **멱등성 보장**
-  - [ ] `merchant_order_id`를 Unique Key로 사용
-  - [ ] 동일 주문 ID로 재요청 시 기존 결제 정보 반환
-  - [ ] DB Unique Constraint 설정
+- [x] **멱등성 보장**
+  - [x] `merchant_order_id`를 Unique Key로 사용 (PREPARE)
+  - [x] 동일 주문 ID로 재요청 시 기존 결제 정보 반환
+  - [x] DB Unique Constraint 설정 (uq_payments_prepare_per_order)
 
 - [ ] **동시성 제어**
   - [ ] Optimistic Locking (version 컬럼)
-  - [ ] 분산 락 (Redis SETNX)
+  - [ ] 분산 락 (Redis SETNX) — Merchant 측 confirm은 Redisson 락 사용, PSP는 DB 제약으로 대체
 
 ### 3.5 보안
 
 - [ ] **민감 정보 보호**
-  - [ ] `pg_token`, `tid` 암호화 저장 (AES-256-GCM)
+  - [x] `tid` 암호화 저장 (AES-256-GCM, AesEncryptionAdapter)
   - [ ] 카드 정보 로깅 금지
   - [ ] PII 마스킹 (로그에서 이메일, 전화번호)
 
@@ -623,22 +625,22 @@ FAILED   FAILED      CANCELED
   - [ ] 세금 계산 로직
 
 - [ ] **테스트 프레임워크**
-  - [ ] JUnit 5, Mockk
-  - [ ] 커버리지 목표: 80% 이상 (JaCoCo)
+  - [x] JUnit 5, Mockk
+  - [ ] 커버리지 목표: 80% 이상 (JaCoCo) — 미구성
 
 ### 7.2 통합 테스트 (Integration Test)
 
-- [ ] **API 테스트**
-  - [ ] `@SpringBootTest` + `WebTestClient`
-  - [ ] 모든 엔드포인트 테스트
-  - [ ] 성공/실패 시나리오
+- [x] **API 테스트** (FeedIntegrationTest, CheckoutIntegrationTest, PaymentIntegrationTest)
+  - [x] `@SpringBootTest` + `WebTestClient`
+  - [ ] 모든 엔드포인트 테스트 (일부 커버)
+  - [x] 성공/실패 시나리오
 
-- [ ] **DB 테스트**
-  - [ ] Testcontainers (PostgreSQL)
+- [x] **DB 테스트**
+  - [x] Testcontainers (PostgreSQL)
   - [ ] 트랜잭션 롤백 (@Transactional)
 
 - [ ] **외부 API Mock**
-  - [ ] 카카오페이 API Mock (WireMock)
+  - [x] 카카오페이 API Mock (mockk 기반, KakaoPayProviderTest)
   - [ ] Cafe24 API Mock
 
 ### 7.3 E2E 테스트
