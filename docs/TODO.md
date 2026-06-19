@@ -140,7 +140,7 @@
 - [x] **POST /checkout_sessions/{id}/complete** (주문 확정)
   - [x] PSP 서버에 결제 요청 (`POST /api/v1/payments/prepare`)
   - [x] 주문 생성 (orders 테이블) — /confirm 단계에서 생성
-  - [ ] 재고 차감 (트랜잭션)
+  - [x] 재고 차감 (트랜잭션, 원자적 차감·재고 부족 시 롤백) — confirm 단계
   - [x] 응답: `next_action_url` (카카오페이 리다이렉트 URL)
 
 - [x] **POST /checkout_sessions/{id}/cancel** (세션 취소)
