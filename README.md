@@ -2,6 +2,7 @@
 
 > **프로덕션 레디, Type-Safe, AI 에이전트 시대를 위한 커머스 시스템**
 
+[![CI](https://github.com/parkmh04/acp/actions/workflows/ci.yml/badge.svg)](https://github.com/parkmh04/acp/actions/workflows/ci.yml)
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.1-7F52FF?logo=kotlin)](https://kotlinlang.org/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5.3-6DB33F?logo=spring)](https://spring.io/projects/spring-boot)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql)](https://www.postgresql.org/)
