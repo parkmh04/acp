@@ -468,15 +468,15 @@ FAILED   FAILED      CANCELED
   - [ ] `revenue_total`: 총 매출 (KRW)
   - [ ] `average_order_value`: 평균 주문 금액
 
-- [ ] **시스템 메트릭**
-  - [ ] `http_server_requests_seconds`: API 응답 시간 (P50, P95, P99)
-  - [ ] `jvm_threads_live`: Virtual Thread 수
-  - [ ] `jvm_memory_used_bytes`: 메모리 사용량
-  - [ ] `jdbc_connections_active`: DB 커넥션 풀 사용량
-  - [ ] `redis_commands_duration_seconds`: Redis 명령 실행 시간
+- [ ] **시스템 메트릭** (Micrometer 자동 계측)
+  - [x] `http_server_requests_seconds`: API 응답 시간 (P50, P95, P99)
+  - [x] `jvm_threads_live`: 스레드 수
+  - [x] `jvm_memory_used_bytes`: 메모리 사용량
+  - [x] `jdbc_connections_active`: DB 커넥션 풀 사용량 (HikariCP)
+  - [ ] `redis_commands_duration_seconds`: Redis 명령 실행 시간 (Redisson 미계측)
 
 - [ ] **Prometheus 설정**
-  - [ ] `/actuator/prometheus` 엔드포인트 노출
+  - [x] `/actuator/prometheus` 엔드포인트 노출
   - [ ] Prometheus 서버 설정 (docker-compose)
   - [ ] Scrape 간격: 15초
 
@@ -523,10 +523,10 @@ FAILED   FAILED      CANCELED
   - [ ] API 응답 시간 P95 > 1초 → PagerDuty
   - [ ] 에러율 > 1% → 이메일 알림
 
-- [ ] **헬스 체크**
-  - [ ] `/actuator/health` 엔드포인트
-  - [ ] DB 연결 상태, Redis 연결 상태 체크
-  - [ ] Kubernetes Liveness/Readiness Probe 설정
+- [x] **헬스 체크**
+  - [x] `/actuator/health` 엔드포인트
+  - [x] DB 연결 상태, Redis 연결 상태 체크 (Actuator HealthIndicator 자동)
+  - [x] Kubernetes Liveness/Readiness Probe 설정 (`/actuator/health/{liveness,readiness}`)
 
 ### 5.5 대시보드 (Grafana)
 
@@ -574,9 +574,9 @@ FAILED   FAILED      CANCELED
   - [ ] Bean Validation (`@Valid`, `@NotNull`, `@Size`)
   - [ ] 커스텀 Validator (이메일, 전화번호, 우편번호)
 
-- [ ] **SQL Injection 방지**
-  - [ ] jOOQ Parameterized Query 사용
-  - [ ] Native SQL 금지
+- [x] **SQL Injection 방지**
+  - [x] jOOQ Parameterized Query 사용
+  - [x] Native SQL 금지
 
 ### 6.4 OWASP Top 10 대응
 
@@ -587,7 +587,7 @@ FAILED   FAILED      CANCELED
   - [ ] 민감 데이터 암호화 (위 참조)
 
 - [ ] **A03: Injection**
-  - [ ] SQL Injection 방지 (위 참조)
+  - [x] SQL Injection 방지 (jOOQ parameterized)
   - [ ] XSS 방지 (Content-Security-Policy 헤더)
 
 - [ ] **A05: Security Misconfiguration**
@@ -756,18 +756,18 @@ FAILED   FAILED      CANCELED
 
 ## 📅 마일스톤
 
-### Milestone 1: MVP (4주)
-- [ ] Merchant: 기본 Checkout Flow
-- [ ] PSP: 카카오페이 결제 준비/승인
-- [ ] 에이전트 시뮬레이터로 E2E 테스트
+### Milestone 1: MVP (4주) — 🚧 진행 중
+- [x] Merchant: 기본 Checkout Flow
+- [x] PSP: 카카오페이 결제 준비/승인 (코드 구현, 실결제 미검증)
+- [ ] 에이전트 시뮬레이터로 E2E 테스트 (acp-client 스캐폴드)
 
-### Milestone 2: 프로덕션 준비 (8주)
-- [ ] 전체 ACP 스펙 구현
-- [ ] 보안 강화
-- [ ] 관측성 구축
-- [ ] 통합 테스트 커버리지 80%
+### Milestone 2: 프로덕션 준비 (8주) — 🚧 일부
+- [ ] 전체 ACP 스펙 구현 (세금/할인/포맷 미구현)
+- [ ] 보안 강화 (tid 암호화만, 인증/rate limit 미구현)
+- [ ] 관측성 구축 (Actuator/Prometheus 노출 O, 로깅/트레이싱/Grafana 미구현)
+- [ ] 통합 테스트 커버리지 80% (JaCoCo 미구성)
 
-### Milestone 3: ChatGPT 연동 (12주)
+### Milestone 3: ChatGPT 연동 (12주) — 📅 미착수
 - [ ] Custom GPT 연동
 - [ ] 실제 결제 데모
 - [ ] 성능 최적화 (1000 TPS)

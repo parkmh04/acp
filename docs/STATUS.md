@@ -53,12 +53,20 @@
    - ✅ **API 표준화**: Enum 대문자, Snake Case 응답, 불필요한 어노테이션 제거
    - ✅ **통합 테스트 보강**: 배송 시나리오 및 JSON 응답 형식 검증
 
+7. **포크 실행가능성 및 견고성 강화** (2026-06-19)
+   - ✅ **부트스트랩**: docker-compose initdb로 스키마/테이블 자동 생성 (포크 후 즉시 빌드·기동 가능)
+   - ✅ **상품 피드 DB 폴백**: Cafe24 미설정 시 로컬 시드 상품 반환 (`ProductFeedService`)
+   - ✅ **전역 예외 처리**: RFC7807 ProblemDetail (`GlobalExceptionHandler`, merchant/psp)
+   - ✅ **관측성**: Actuator 헬스(liveness/readiness) + Prometheus 메트릭 노출
+   - ✅ **결제 멱등성 강화**: PREPARE 부분 unique 인덱스로 동시 요청 레이스 차단
+   - ✅ **버그 수정**: KakaoPay base-url(open-api.kakaopay.com), 영속성 어댑터 IO 격리, 문서/코드 정합화
+
 ## 🚧 다음 작업 (우선순위 순)
 
 ### 즉시 착수 (Week 2) - 진행 중 🚧
 
 1. **Merchant & PSP - 결제 승인 및 주문 생성**
-   - ✅ PSP: 결제 승인 API (`POST /payments/approve`) 보완 (merchantOrderId 연동)
+   - ✅ PSP: 결제 승인 API (`POST /api/v1/payments/approve`) 보완 (merchantOrderId 연동)
    - ✅ Merchant: 결제 완료 콜백 처리 엔드포인트 구현 및 `Order` 생성 로직 고도화
    - ✅ E2E: 체크아웃 -> 결제 준비 -> 승인 -> 주문 생성 전체 플로우 검증 완료 (`CheckoutIntegrationTest`)
 
@@ -66,6 +74,11 @@
    - ✅ 민감 정보(pgTid 등) 암호화 저장 로직 구현 (AES-256-GCM 기반 `EncryptionPort`)
    - ✅ PSP 결제 취소 API 구현 및 Merchant 주문 취소 연동 완료
    - [ ] Cafe24 OAuth 자동 갱신 (Redis 기반 토큰 스토리지 도입 검토)
+
+3. **기능 정직성 (문서-코드 갭)**
+   - [ ] 세금 계산(VAT) 구현 — 현재 `tax=0` placeholder
+   - [ ] 할인(discount) 계산 구현 — 현재 0 고정
+   - [ ] CI(GitHub Actions), 인증(API Key)/rate limit
 
 ---
 
@@ -78,4 +91,4 @@
 
 ---
 
-**Last Updated**: 2026-01-05T22:30:00+09:00
+**Last Updated**: 2026-06-19

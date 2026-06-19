@@ -351,15 +351,15 @@ Apache License 2.0 - 자세한 내용은 [LICENSE](LICENSE) 파일 참조
 
 현재 진행 상황 및 향후 계획은 [TODO.md](docs/TODO.md)를 참조하세요.
 
-### Milestone 1: MVP (Week 1-4) ✅
+### Milestone 1: MVP (Week 1-4) 🚧
 - [x] 기본 체크아웃 플로우
-- [x] 카카오페이 결제 통합
-- [ ] 에이전트 시뮬레이터
+- [x] 카카오페이 결제 통합 (코드 구현, 실결제 미검증)
+- [ ] 에이전트 시뮬레이터 (acp-client 스캐폴드)
 
 ### Milestone 2: 프로덕션 준비 (Week 5-8) 🚧
-- [ ] ACP 스펙 100% 구현
-- [ ] 보안 강화
-- [ ] 관측성 구축
+- [ ] ACP 스펙 100% 구현 (세금/할인/피드 포맷 미구현)
+- [ ] 보안 강화 (tid 암호화·RFC7807만, 인증/rate limit 미구현)
+- [ ] 관측성 구축 (Actuator/Prometheus·헬스체크 O, 로깅/트레이싱/Grafana 미구현)
 
 ### Milestone 3: ChatGPT 연동 (Week 9-12) 📅
 - [ ] Custom GPT 연동
