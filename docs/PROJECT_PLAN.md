@@ -87,7 +87,7 @@
   - DB 저장 (payments 테이블)
   
 - [ ] **Day 5**: 콜백 처리
-  - `GET /api/v1/payments/callback/success`
+  - `GET /api/v1/payments/success` (Merchant 수신)
   - `POST /online/v1/payment/approve` 연동
   - 결제 상태 업데이트
 
