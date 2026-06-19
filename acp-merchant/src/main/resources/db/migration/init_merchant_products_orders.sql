@@ -49,7 +49,4 @@ CREATE INDEX IF NOT EXISTS idx_orders_user ON merchant.orders(user_id);
 CREATE INDEX IF NOT EXISTS idx_order_lines_order_id ON merchant.order_lines(order_id);
 CREATE INDEX IF NOT EXISTS idx_order_lines_product_id ON merchant.order_lines(product_id);
 
--- 3. Product Images (V1.1 content merged or kept separate depending on strategy, but modifying V1 base here)
--- Note: V1.1 is usually separate, but if recreating schema, we stick to file structure.
--- Assuming V1.1 adds columns, but V1 also had some structure. 
--- Wait, original V1 didn't have product_images? Let me check existing V1.1
+-- 상품 확장 필드 및 product_images 테이블은 expand_products_spec.sql 에서 생성됩니다.

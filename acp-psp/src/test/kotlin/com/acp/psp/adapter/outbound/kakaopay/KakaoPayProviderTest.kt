@@ -16,7 +16,12 @@ import reactor.core.publisher.Mono
 class KakaoPayProviderTest {
 
     private val webClient = mockk<WebClient>()
-    private val provider = KakaoPayProvider(webClient, cid = "TC0ONETIME")
+    private val provider =
+            KakaoPayProvider(
+                    webClient,
+                    cid = "TC0ONETIME",
+                    callbackBaseUrl = "http://localhost:8080"
+            )
 
     @Test
     @DisplayName("카카오페이 결제 준비 API 호출이 정상적으로 변환되어야 한다")

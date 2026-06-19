@@ -128,71 +128,78 @@ git clone https://github.com/your-org/acp.git
 cd acp
 ```
 
-### 2. 환경 변수 설정
+> **포크 후 바로 실행**: 아래 1→2→3→4 순서만 따르면 추가 설정 없이 두 서버가 기동되고
+> 상품 피드/체크아웃 데모가 동작합니다. 카카오페이 **실결제**만 실제 키가 필요합니다(2번 참고).
 
-`.env.template`을 복사하여 `.env` 파일을 생성하고 카카오페이 API 키를 입력합니다.
-
-```bash
-cp .env.template .env
-```
-
-`.env` 파일에 발급받은 카카오페이 API 키를 입력합니다 (실제 키를 커밋하지 마세요):
-```bash
-# KakaoPay API Credentials
-KAKAOPAY_CLIENT_ID=your_kakaopay_client_id_here
-KAKAOPAY_CLIENT_SECRET=your_kakaopay_client_secret_here
-KAKAOPAY_SECRET_KEY_DEV=your_kakaopay_dev_secret_key_here
-KAKAOPAY_SECRET_KEY_PROD=your_kakaopay_prod_secret_key_here
-```
-
-> ⚠️ 키 발급은 [카카오페이 개발자센터](https://developers.kakaopay.com/)에서 진행하며, `.env`는 `.gitignore`로 제외됩니다.
-
-### 3. 인프라 실행 (PostgreSQL, Redis)
+### 1. 인프라 실행 (PostgreSQL, Redis)
 
 ```bash
-docker-compose -f docker/docker-compose.yml up -d
+docker compose -f docker/docker-compose.yml up -d
 ```
+
+PostgreSQL 컨테이너는 **최초 기동 시** `merchant`/`psp` 스키마와 모든 테이블을
+`docker/initdb` 스크립트로 **자동 생성**합니다(별도 마이그레이션 실행 불필요).
+
+> 스키마를 처음부터 다시 만들려면 볼륨까지 초기화: `docker compose -f docker/docker-compose.yml down -v`
 
 DB 접속 확인:
 ```bash
-psql -h localhost -p 5432 -U user -d acp
-# Password: password
+psql -h localhost -p 5432 -U user -d acp   # Password: password
 ```
 
-### 4. 빌드 및 테스트
+### 2. (선택) 환경 변수 — 실제 외부 연동 시에만 필요
+
+기본값이 모두 설정되어 있어 **데모 실행에는 `.env`가 필요 없습니다.**
+카카오페이 실결제나 Cafe24 실연동을 하려면 키를 셸 환경변수로 주입하세요.
+(Spring은 `.env` 파일을 자동 로드하지 않으므로 `export` 또는 OS 환경변수를 사용합니다.)
+
+```bash
+cp .env.template .env          # 참고용 템플릿
+export KAKAOPAY_SECRET_KEY_DEV=발급받은_dev_secret_key
+export CAFE24_MALL_ID=...      # Cafe24 연동 시
+```
+
+> ⚠️ 실제 키는 절대 커밋하지 마세요. `.env`는 `.gitignore`로 제외됩니다.
+> 미설정 시 카카오페이 시크릿은 더미값으로 기동되며, `/feed`는 Cafe24 대신 **로컬 시드 상품**을 반환합니다.
+
+### 3. 빌드
 
 ```bash
 ./gradlew clean build
 ```
 
-### 5. 서버 실행
+> jOOQ 코드 생성이 **빌드 타임에 DB 스키마를 읽으므로 1번(인프라)이 먼저 떠 있어야 합니다.**
 
-**터미널 1 - Merchant 서버**:
+### 4. 서버 실행
+
 ```bash
+# 터미널 1 - Merchant (8080)
 ./gradlew :acp-merchant:bootRun
-```
 
-**터미널 2 - PSP 서버**:
-```bash
+# 터미널 2 - PSP (8081)
 ./gradlew :acp-psp:bootRun
 ```
 
-### 6. API 테스트
+### 5. API 테스트
 
-**상품 피드 조회**:
+**상품 피드 조회** (로컬 시드 3건 반환):
 ```bash
 curl http://localhost:8080/feed
 ```
 
-**체크아웃 세션 생성**:
+**체크아웃 세션 생성** (위 피드의 실제 상품 ID 사용, 예: `PROD-001`):
 ```bash
 curl -X POST http://localhost:8080/checkout_sessions \
   -H "Content-Type: application/json" \
   -d '{
-    "items": [{"id": "prod_001", "quantity": 1}],
+    "items": [{"id": "PROD-001", "quantity": 1}],
     "buyer": {"email": "user@example.com", "name": "홍길동"}
   }'
 ```
+
+> **데모 한계**: 카카오페이 결제 준비(`/complete`) 이후 단계는 유효한 카카오페이 키와
+> 외부 리다이렉트가 필요합니다. 실결제 데모는 2번에서 키를 주입하세요.
+> `acp-client`(에이전트 시뮬레이터)는 현재 스캐폴드 단계로 비어 있습니다.
 
 ---
 

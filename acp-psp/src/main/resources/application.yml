@@ -17,4 +17,5 @@ spring:
 
 kakaopay:
   base-url: https://open-api.kakaopay.com
-  secret-key: ${KAKAOPAY_SECRET_KEY_DEV}
+  # 실제 결제 호출 전까지는 더미로 기동 가능. 실거래는 KAKAOPAY_SECRET_KEY_DEV 환경변수로 주입.
+  secret-key: ${KAKAOPAY_SECRET_KEY_DEV:dummy-dev-secret-key}

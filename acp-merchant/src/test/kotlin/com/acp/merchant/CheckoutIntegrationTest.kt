@@ -317,6 +317,7 @@ class CheckoutIntegrationTest : IntegrationTestBase() {
             .uri("/checkout_sessions")
             .bodyValue(request)
             .exchange()
-            .expectStatus().is5xxServerError
+            // 잘못된 주소/입력은 GlobalExceptionHandler가 400 Bad Request로 매핑한다.
+            .expectStatus().isBadRequest
     }
 }
