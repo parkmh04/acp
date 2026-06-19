@@ -26,6 +26,10 @@ dependencies {
     implementation(libs.spring.boot.starter.webflux)
     implementation(libs.kotlin.logging)
 
+    // Observability (health + Prometheus metrics)
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation("io.micrometer:micrometer-registry-prometheus")
+
     // Cache & Distributed Lock
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
     implementation("com.github.ben-manes.caffeine:caffeine")

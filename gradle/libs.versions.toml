@@ -58,4 +58,3 @@ spring-dependency-management = { id = "io.spring.dependency-management", version
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 compose = { id = "org.jetbrains.compose", version.ref = "composePlugin" }
 jooq = { id = "nu.studer.jooq", version = "9.0" }
-flyway = { id = "org.flywaydb.flyway", version = "10.10.0" }

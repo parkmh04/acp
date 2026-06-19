@@ -25,6 +25,10 @@ dependencies {
     implementation(libs.spring.boot.starter.webflux)
     implementation(libs.kotlin.logging)
 
+    // Observability (health + Prometheus metrics)
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation("io.micrometer:micrometer-registry-prometheus")
+
     // DB (PSP DB)
     implementation(libs.spring.boot.starter.jooq)
     implementation(libs.postgresql)

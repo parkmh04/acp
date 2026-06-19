@@ -15,6 +15,16 @@ spring:
   jooq:
     sql-dialect: POSTGRES
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    health:
+      probes:
+        enabled: true   # liveness/readiness 프로브
+
 kakaopay:
   base-url: https://open-api.kakaopay.com
   # 실제 결제 호출 전까지는 더미로 기동 가능. 실거래는 KAKAOPAY_SECRET_KEY_DEV 환경변수로 주입.
