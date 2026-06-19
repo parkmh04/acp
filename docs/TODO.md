@@ -126,7 +126,7 @@
 - [x] **POST /checkout_sessions** (세션 생성)
   - [x] 요청 검증 (items, buyer, fulfillment_address)
   - [x] 재고 확인(상품 존재) 및 가격 계산
-  - [ ] 세금 계산 (국가/지역별) — 현재 tax=0 placeholder, 미구현
+  - [x] 세금 계산 (VAT 10%, PricingEngine) — 단, GET 재조회(findById)는 tax=0 복원 버그 있음
   - [x] 배송비 계산 (fulfillment_options)
   - [x] 세션 ID 생성 및 DB 저장
   - [x] 응답: `CheckoutSessionResponse` (status: not_ready_for_payment)
@@ -180,7 +180,7 @@ CANCELED    FAILED
   - [x] `base_amount = unit_price × quantity`
   - [ ] `discount` 적용 (할인 코드, 프로모션) — 미구현
   - [x] `subtotal = base_amount - discount`
-  - [ ] `tax` 계산 (국가/지역별 세율) — 미구현(0 고정)
+  - [x] `tax` 계산 (VAT 10%, PricingEngine)
   - [x] `total = subtotal + tax`
 
 - [ ] **Totals 계산**
@@ -188,11 +188,11 @@ CANCELED    FAILED
   - [ ] `items_discount`: 상품 할인 합계 — 미구현
   - [x] `subtotal`: 상품 소계
   - [x] `fulfillment`: 배송비
-  - [ ] `tax`: 세금 — 미구현(0 고정)
+  - [x] `tax`: 세금 (VAT 10%)
   - [x] `total`: 최종 결제 금액
 
 - [ ] **세금 계산 로직**
-  - [ ] 한국: VAT 10%
+  - [x] 한국: VAT 10% (PricingEngine)
   - [ ] 미국: 주별 Sales Tax (외부 API 연동 고려)
   - [ ] 유럽: VAT (국가별)
 
@@ -408,7 +408,10 @@ FAILED   FAILED      CANCELED
 
 ### 4.1 에이전트 시뮬레이터 (Kotlin Compose Desktop)
 
-- [ ] **UI 구현**
+> ✅ **CLI 시뮬레이터 구현됨** (`acp-client`): 상품 검색 → 체크아웃 세션 생성 (`./gradlew :acp-client:run --args="demo"`). 아래 Compose GUI는 예정.
+
+- [x] **CLI 구현** (feed/demo/get, Ktor 기반 AcpApiClient)
+- [ ] **UI 구현** (Compose Desktop)
   - [ ] 채팅 인터페이스 (ChatGPT 스타일)
   - [ ] 상품 검색 및 표시
   - [ ] 장바구니 관리
