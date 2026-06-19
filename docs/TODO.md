@@ -349,23 +349,20 @@ FAILED   FAILED      CANCELED
 
 ### 3.3 콜백 처리
 
-- [ ] **성공 콜백**
-  - [ ] `GET /api/v1/payments/callback/success?pg_token={token}`
-  - [ ] `pg_token` 추출 및 검증
-  - [ ] 카카오페이 승인 API 호출
-  - [ ] Merchant 서버에 웹훅 전송 (선택)
-  - [ ] 사용자에게 성공 페이지 표시
+> 콜백은 PSP가 아닌 **Merchant**(`PaymentCallbackController`, :8080)가 수신합니다.
 
-- [ ] **취소 콜백**
-  - [ ] `GET /api/v1/payments/callback/cancel`
-  - [ ] 결제 상태를 CANCELED로 변경
-  - [ ] 사용자에게 취소 페이지 표시
+- [x] **성공 콜백**
+  - [x] `GET /api/v1/payments/success?session_id={id}&pg_token={token}`
+  - [x] `pg_token` 추출 및 PSP `/approve` 호출
+  - [x] `/api/v1/payments/completed`로 리다이렉트 (성공 페이지)
 
-- [ ] **실패 콜백**
-  - [ ] `GET /api/v1/payments/callback/fail`
-  - [ ] 결제 상태를 FAILED로 변경
-  - [ ] 에러 메시지 저장
-  - [ ] 사용자에게 실패 페이지 표시
+- [x] **취소 콜백**
+  - [x] `GET /api/v1/payments/cancel?session_id={id}`
+  - [x] 사용자에게 취소 페이지 표시
+
+- [x] **실패 콜백**
+  - [x] `GET /api/v1/payments/fail?session_id={id}`
+  - [x] 사용자에게 실패 페이지 표시
 
 ### 3.4 멱등성 및 동시성 제어
 
