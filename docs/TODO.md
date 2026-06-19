@@ -233,9 +233,9 @@ CANCELED    FAILED
 
 - [ ] **입력 검증**
   - [x] 상품 ID 존재 여부 확인
-  - [ ] 수량 범위 검증 (1-99)
+  - [x] 수량 범위 검증 (1-99)
   - [x] 주소 형식 검증 (우편번호, 국가 코드)
-  - [ ] 이메일 형식 검증
+  - [x] 이메일 형식 검증
 
 - [ ] **멱등성 보장**
   - [ ] `Idempotency-Key` 헤더 처리
@@ -263,7 +263,7 @@ CANCELED    FAILED
   - [ ] `out_of_stock`: 재고 부족
   - [ ] `invalid_address`: 배송 불가 주소
   - [ ] `payment_failed`: 결제 실패
-  - [ ] `session_expired`: 세션 만료 (30분)
+  - [x] `session_expired`: 세션 만료 시각(expires_at) 설정 (30분)
 
 ---
 
