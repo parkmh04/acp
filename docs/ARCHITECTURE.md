@@ -111,9 +111,9 @@
 │                      │    ├─────────────────────────────────────┤
 │ - 상품 조회          │    │  ┌────────────────────────────────┐ │
 │ - 카테고리 조회      │    │  │  Payment Controller            │ │
-│ - 재고 확인          │    │  │  - POST /payments/prepare      │ │
-│ - 주문 생성 (선택)   │    │  │  - GET /payments/{id}          │ │
-└──────────────────────┘    │  │  - POST /payments/cancel       │ │
+│ - 재고 확인          │    │  │ - POST /api/v1/payments/prepare│ │
+│ - 주문 생성 (선택)   │    │  │ - POST /api/v1/payments/approve│ │
+└──────────────────────┘    │  │ - POST /api/v1/payments/cancel │ │
                             │  └──────────┬─────────────────────┘ │
                             │             ▼                        │
                             │  ┌────────────────────────────────┐ │
@@ -328,10 +328,11 @@ acp/
 │   │       ├── RedisConfig.kt
 │   │       └── SecurityConfig.kt
 │   └── src/main/resources/
-│       ├── db/migration/      # Flyway Migrations
-│       │   ├── V1__create_products.sql
-│       │   ├── V2__create_orders.sql
-│       │   └── V3__create_checkout_sessions.sql
+│       ├── db/migration/      # 수동 SQL 스크립트 (Flyway 미사용)
+│       │   ├── init_merchant_products_orders.sql
+│       │   ├── create_checkout_sessions.sql
+│       │   ├── add_fulfillment_option.sql
+│       │   └── expand_products_spec.sql
 │       └── application.yml
 │
 ├── acp-psp/                   # PSP 서버 (Port 8081)
@@ -366,9 +367,8 @@ acp/
 │   │       ├── KakaoPayConfig.kt
 │   │       └── EncryptionConfig.kt
 │   └── src/main/resources/
-│       ├── db/migration/
-│       │   ├── V1__create_payments.sql
-│       │   └── V2__create_payment_partner_meta.sql
+│       ├── db/migration/      # 수동 SQL 스크립트 (Flyway 미사용)
+│       │   └── init_psp_payments.sql
 │       └── application.yml
 │
 ├── acp-shared/                # 공유 스키마 (Kotlin Multiplatform)
@@ -435,7 +435,7 @@ acp/
 
 **POST /checkout_sessions**
 - **목적**: 체크아웃 세션 생성
-- **멱등성**: Idempotency-Key 헤더 필수
+- **멱등성**: Idempotency-Key 헤더 (예정, 현재 미구현)
 - **요청**:
   ```json
   {
@@ -456,13 +456,32 @@ acp/
 - **목적**: 주문 확정 및 결제 준비
 - **응답**: `next_action_url` (카카오페이 리다이렉트 URL)
 
+**POST /checkout_sessions/{id}/confirm**
+- **목적**: 결제 승인(pg_token) 처리 및 주문 생성 확정
+
 **GET /checkout_sessions/{id}**
 - **목적**: 세션 조회
 
 **POST /checkout_sessions/{id}/cancel**
 - **목적**: 세션 취소
 
-#### 3. Webhook Receiver
+#### 3. Payment Callbacks (카카오페이 리다이렉트, Merchant가 수신)
+
+결제 리다이렉트 콜백은 PSP가 아닌 **Merchant 서버(:8080)**의 `PaymentCallbackController`에서 처리합니다.
+
+**GET /api/v1/payments/success?session_id={id}&pg_token={token}**
+- **목적**: 결제 승인 처리 후 `/completed`로 리다이렉트
+
+**GET /api/v1/payments/completed?session_id={id}**
+- **목적**: 결제 완료 페이지 표시
+
+**GET /api/v1/payments/cancel?session_id={id}**
+- **목적**: 사용자 결제 취소 처리
+
+**GET /api/v1/payments/fail?session_id={id}**
+- **목적**: 결제 실패 처리
+
+#### 4. Webhook Receiver (예정, 현재 미구현)
 
 **POST /webhooks/payment**
 - **목적**: PSP로부터 결제 상태 변경 알림 수신
@@ -498,31 +517,21 @@ acp/
   }
   ```
 
-#### 2. Payment Status
+#### 2. Payment Approval
 
-**GET /api/v1/payments/{id}**
-- **목적**: 결제 상태 조회
-- **응답**:
-  ```json
-  {
-    "id": "pay_001",
-    "status": "COMPLETED",
-    "amount": 100900,
-    "approvedAt": "2025-12-29T09:15:00Z"
-  }
-  ```
+**POST /api/v1/payments/approve**
+- **목적**: pg_token 기반 카카오페이 결제 최종 승인
+- **요청**: `PaymentApproveRequest` (merchantOrderId, pgToken)
+- **응답**: `PaymentApproveResponse` (paymentId, status, approvedAt)
 
-#### 3. Callbacks (카카오페이 리다이렉트)
+#### 3. Payment Cancel
 
-**GET /api/v1/payments/callback/success?pg_token={token}**
-- **목적**: 결제 승인 처리
-- **플로우**: pg_token 추출 → 카카오페이 승인 API 호출 → DB 업데이트 → 성공 페이지 표시
+**POST /api/v1/payments/cancel**
+- **목적**: 승인된 결제 취소(환불)
+- **요청**: `PaymentCancelRequest` (merchantOrderId, cancelAmount)
+- **응답**: `PaymentCancelResponse`
 
-**GET /api/v1/payments/callback/cancel**
-- **목적**: 사용자 결제 취소
-
-**GET /api/v1/payments/callback/fail**
-- **목적**: 결제 실패 처리
+> **참고**: 결제 상태 단건 조회(`GET /api/v1/payments/{id}`)는 현재 미구현이며 향후 추가 예정입니다. 리다이렉트 콜백은 PSP가 아닌 Merchant 서버에서 수신합니다 (위 Merchant API 계약 참조).
 
 ---
 

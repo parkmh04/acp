@@ -3,7 +3,7 @@
 ## ✅ 완료된 작업
 
 1. **문서화 및 설계 고도화** (2025-12-29)
-   - ✅ ARCHITECTURE_V2.md: 중개 서버 패턴 기반 아키텍처 설계
+   - ✅ ARCHITECTURE.md: 중개 서버 패턴 기반 아키텍처 설계
    - ✅ TODO.md: 9개 Phase 상세 로드맵
    - ✅ DB_SCHEMA.md: 데이터베이스 스키마 설계
    - ✅ PROJECT_PLAN.md: 12주 실행 계획서
@@ -74,7 +74,7 @@
 상세한 작업 내용은 다음 문서를 참조하세요:
 - **[TODO.md](TODO.md)**: 9개 Phase별 상세 작업 목록
 - **[PROJECT_PLAN.md](PROJECT_PLAN.md)**: 12주 실행 계획서
-- **[ARCHITECTURE_V2.md](ARCHITECTURE_V2.md)**: 시스템 아키텍처 설계
+- **[ARCHITECTURE.md](ARCHITECTURE.md)**: 시스템 아키텍처 설계
 
 ---
 
