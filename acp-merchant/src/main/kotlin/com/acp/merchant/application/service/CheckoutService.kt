@@ -318,6 +318,14 @@ class CheckoutService(
                     throw IllegalStateException("Session is not ready for payment completion")
                 }
 
+                // 재고 차감 (결제 승인 전, 동일 트랜잭션 내). 부족 시 throw → 전체 롤백.
+                session.items.forEach { item ->
+                    val deducted = productRepository.decreaseStock(item.productId, item.quantity)
+                    if (!deducted) {
+                        throw IllegalStateException("재고 부족: ${item.productId}")
+                    }
+                }
+
                 val approveResponse =
                         paymentClient.approvePayment(
                                 PaymentApproveRequest(

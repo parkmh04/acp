@@ -34,4 +34,16 @@ class ProductPersistenceAdapter(private val dsl: DSLContext) : ProductPersistenc
                 dsl.deleteFrom(PRODUCTS).execute()
                 Unit
             }
+
+    override suspend fun decreaseStock(productId: String, quantity: Int): Boolean =
+            withContext(Dispatchers.IO) {
+                // 가용 재고가 충분할 때만 차감 (동시 주문 오버셀 방지)
+                val updated =
+                        dsl.update(PRODUCTS)
+                                .set(PRODUCTS.INVENTORY_QTY, PRODUCTS.INVENTORY_QTY.minus(quantity))
+                                .where(PRODUCTS.ID.eq(productId))
+                                .and(PRODUCTS.INVENTORY_QTY.ge(quantity))
+                                .execute()
+                updated > 0
+            }
 }
