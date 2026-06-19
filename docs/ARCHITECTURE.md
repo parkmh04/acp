@@ -389,7 +389,7 @@ acp/
 │           └── AgentSimulator.kt
 │
 ├── docker/
-│   └── docker-compose.yml     # PostgreSQL, Redis, Prometheus, Grafana
+│   └── docker-compose.yml     # PostgreSQL, Redis (Prometheus/Grafana 예정)
 │
 ├── docs/
 │   ├── TODO.md                # 프로젝트 로드맵
