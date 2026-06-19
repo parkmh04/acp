@@ -17,7 +17,7 @@ class OrderPersistenceAdapter(
     private val dsl: DSLContext
 ) : OrderRepositoryPort {
 
-    override suspend fun save(order: Order): Order {
+    override suspend fun save(order: Order): Order = withContext(Dispatchers.IO) {
             // 1. Save Order
             dsl.insertInto(ORDERS)
                 .set(ORDERS.ID, order.id)
@@ -64,13 +64,13 @@ class OrderPersistenceAdapter(
                 insert.execute()
             }
             
-            return order
+            return@withContext order
     }
 
-    override suspend fun findById(id: String): Order? {
+    override suspend fun findById(id: String): Order? = withContext(Dispatchers.IO) {
         val record = dsl.selectFrom(ORDERS)
             .where(ORDERS.ID.eq(id))
-            .fetchOne() ?: return null
+            .fetchOne() ?: return@withContext null
 
         val items = dsl.selectFrom(ORDER_LINES)
             .where(ORDER_LINES.ORDER_ID.eq(id))
@@ -85,7 +85,7 @@ class OrderPersistenceAdapter(
                 )
             }
 
-        return Order(
+        return@withContext Order(
             id = record.id!!,
             userId = record.userId!!,
             status = OrderStatus.valueOf(record.status!!),

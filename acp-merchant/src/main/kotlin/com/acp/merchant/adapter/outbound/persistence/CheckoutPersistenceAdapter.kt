@@ -15,7 +15,7 @@ class CheckoutPersistenceAdapter(
     private val dsl: DSLContext
 ) : CheckoutRepositoryPort {
 
-    override suspend fun save(checkoutSession: CheckoutSession): CheckoutSession {
+    override suspend fun save(checkoutSession: CheckoutSession): CheckoutSession = withContext(Dispatchers.IO) {
             // 1. Save Session
             dsl.insertInto(CHECKOUT_SESSIONS)
                 .set(CHECKOUT_SESSIONS.ID, checkoutSession.id)
@@ -72,13 +72,13 @@ class CheckoutPersistenceAdapter(
                 insert.execute()
             }
             
-            return checkoutSession
+            return@withContext checkoutSession
     }
 
-    override suspend fun findById(id: String): CheckoutSession? {
+    override suspend fun findById(id: String): CheckoutSession? = withContext(Dispatchers.IO) {
         val record = dsl.selectFrom(CHECKOUT_SESSIONS)
             .where(CHECKOUT_SESSIONS.ID.eq(id))
-            .fetchOne() ?: return null
+            .fetchOne() ?: return@withContext null
 
         val items = dsl.selectFrom(CHECKOUT_ITEMS)
             .where(CHECKOUT_ITEMS.CHECKOUT_SESSION_ID.eq(id))
@@ -95,7 +95,7 @@ class CheckoutPersistenceAdapter(
         val itemsBaseAmount = items.fold(BigDecimal.ZERO) { acc, i -> acc.add(i.totalPrice) }
         val shippingCost = record.shippingCost ?: BigDecimal.ZERO
 
-        return CheckoutSession(
+        return@withContext CheckoutSession(
             id = record.id!!,
             status = CheckoutStatus.valueOf(record.status!!),
             currency = record.currency!!,
