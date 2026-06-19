@@ -277,7 +277,7 @@ CANCELED    FAILED
   - [ ] 시크릿 암호화 (Jasypt 또는 AWS Secrets Manager)
 
 - [x] **API 클라이언트 구성**
-  - [x] Base URL: `https://kapi.kakao.com` (또는 `open-api.kakaopay.com`)
+  - [x] Base URL: `https://open-api.kakaopay.com` (단건결제 `/online/v1/payment/*` 엔드포인트)
   - [x] Authorization 헤더: `SECRET_KEY {secret_key}`
   - [x] Content-Type: `application/json`
 

@@ -14,9 +14,7 @@ spring:
     password: password
   jooq:
     sql-dialect: POSTGRES
-  jackson:
-    property-naming-strategy: SNAKE_CASE
 
 kakaopay:
-  base-url: https://kapi.kakao.com
+  base-url: https://open-api.kakaopay.com
   secret-key: ${KAKAOPAY_SECRET_KEY_DEV}

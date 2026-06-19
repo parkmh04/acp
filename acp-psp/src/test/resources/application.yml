@@ -15,5 +15,5 @@ spring:
       mode: never
 
 kakaopay:
-  base-url: https://kapi.kakao.com
+  base-url: https://open-api.kakaopay.com
   secret-key: dummy_secret_key_for_test
