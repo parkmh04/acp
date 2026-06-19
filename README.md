@@ -134,14 +134,16 @@ cd acp
 cp .env.template .env
 ```
 
-`.env` 파일 내용:
+`.env` 파일에 발급받은 카카오페이 API 키를 입력합니다 (실제 키를 커밋하지 마세요):
 ```bash
 # KakaoPay API Credentials
-KAKAOPAY_CLIENT_ID=119A171B128E6FB4C534
-KAKAOPAY_CLIENT_SECRET=EE60EE240E69BA4C928C
-KAKAOPAY_SECRET_KEY_DEV=DEVE05C43E8449B99D99D9CE8194554F2F7FBA0F
-KAKAOPAY_SECRET_KEY_PROD=PRD4FC8A5EDFC7F859599B527D391649086EB0E2
+KAKAOPAY_CLIENT_ID=your_kakaopay_client_id_here
+KAKAOPAY_CLIENT_SECRET=your_kakaopay_client_secret_here
+KAKAOPAY_SECRET_KEY_DEV=your_kakaopay_dev_secret_key_here
+KAKAOPAY_SECRET_KEY_PROD=your_kakaopay_prod_secret_key_here
 ```
+
+> ⚠️ 키 발급은 [카카오페이 개발자센터](https://developers.kakaopay.com/)에서 진행하며, `.env`는 `.gitignore`로 제외됩니다.
 
 ### 3. 인프라 실행 (PostgreSQL, Redis)
 

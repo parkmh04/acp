@@ -58,7 +58,7 @@ Cafe24 API는 OAuth 2.0 인증을 사용합니다.
 ```
 https://your_mall_id.cafe24api.com/api/v2/oauth/authorize
   ?response_type=code
-  &client_id=qiLpnOXHBtIuke056I0FvD
+  &client_id=YOUR_CAFE24_CLIENT_ID
   &state=random_state_string
   &redirect_uri=http://localhost:8080/oauth/callback
   &scope=mall.read_product,mall.read_category
@@ -74,8 +74,8 @@ curl -X POST https://your_mall_id.cafe24api.com/api/v2/oauth/token \
   -d "grant_type=authorization_code" \
   -d "code=YOUR_AUTHORIZATION_CODE" \
   -d "redirect_uri=http://localhost:8080/oauth/callback" \
-  -d "client_id=qiLpnOXHBtIuke056I0FvD" \
-  -d "client_secret=ifcidJ5MVa3TJ2lkzUxdNH"
+  -d "client_id=YOUR_CAFE24_CLIENT_ID" \
+  -d "client_secret=YOUR_CAFE24_CLIENT_SECRET"
 ```
 
 응답:
@@ -85,7 +85,7 @@ curl -X POST https://your_mall_id.cafe24api.com/api/v2/oauth/token \
   "expires_at": "2025-12-30T09:00:00.000",
   "refresh_token": "yyyyyyyy",
   "refresh_token_expires_at": "2026-12-29T09:00:00.000",
-  "client_id": "qiLpnOXHBtIuke056I0FvD",
+  "client_id": "YOUR_CAFE24_CLIENT_ID",
   "mall_id": "your_mall_id",
   "user_id": "admin",
   "scopes": ["mall.read_product", "mall.read_category"],
