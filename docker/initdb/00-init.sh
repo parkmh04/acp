@@ -14,7 +14,8 @@ for f in \
   /migrations/merchant/create_checkout_sessions.sql \
   /migrations/merchant/add_fulfillment_option.sql \
   /migrations/merchant/expand_products_spec.sql \
-  /migrations/psp/init_psp_payments.sql
+  /migrations/psp/init_psp_payments.sql \
+  /migrations/psp/add_payment_idempotency_index.sql
 do
   echo "[acp-init]  -> ${f}"
   psql -v ON_ERROR_STOP=1 --username "${POSTGRES_USER}" --dbname "${POSTGRES_DB}" -f "${f}"
